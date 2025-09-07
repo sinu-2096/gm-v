@@ -230,6 +230,7 @@ function applyFilter() {
   const animalSel = document.getElementById('animalFilter').value;
   const from = document.getElementById('fromDate').value;
   const to = document.getElementById('toDate').value;
+
   let filtered = allPoints.filter(p => {
     if (animalSel !== 'all' && p.animalId !== animalSel) return false;
     const isoDate = p.date ? toISODate(p.date) : null;
@@ -237,12 +238,18 @@ function applyFilter() {
     if (to && (!isoDate || isoDate > to)) return false;
     return true;
   });
-  filtered.sort((a, b) =>
-    ((b.date || '') + (b.time || '')).localeCompare((a.date || '') + (a.time || ''))
-  );
+
+  // ✅ Sort newest (latest date/time) first
+  filtered.sort((a, b) => {
+    const isoA = (a.date ? toISODate(a.date) : '') + (a.time || '');
+    const isoB = (b.date ? toISODate(b.date) : '') + (b.time || '');
+    return isoB.localeCompare(isoA); // descending
+  });
+
   renderMap(filtered);
   renderTable(filtered);
 }
+
 
 function handleKMLtext(kmlString, filename) {
   const xml = new DOMParser().parseFromString(kmlString, "application/xml");
@@ -325,3 +332,4 @@ document.getElementById('exportCSV').addEventListener('click', () => exportCSV(a
 </script>
 </body>
 </html>
+
